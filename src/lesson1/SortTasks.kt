@@ -2,6 +2,9 @@
 
 package lesson1
 
+import java.io.File
+import kotlin.math.max
+
 /**
  * Сортировка времён
  *
@@ -97,8 +100,23 @@ fun sortAddresses(inputName: String, outputName: String) {
  * 121.3
  */
 fun sortTemperatures(inputName: String, outputName: String) {
-    TODO()
+    //Трудоемкость = O(N)
+    //Ресурсоемкость = O(N)
+    val numberOfPossibleTemp = 2730 + 5001
+    val countOfTemp = mutableListOf<Int>()
+    for (i in 1..numberOfPossibleTemp) countOfTemp.add(0)
+    for (temp in File(inputName).readLines())
+        countOfTemp[(temp.toDouble() * 10).toInt() + 2730]++
+    File(outputName).bufferedWriter().use {
+        for ((index, value) in countOfTemp.withIndex()) {
+            if (value != 0) {
+                val temp = (index - 2730) / 10.0
+                for (i in 1..value) it.write("$temp\n")
+            }
+        }
+    }
 }
+
 
 /**
  * Сортировка последовательности
@@ -130,7 +148,28 @@ fun sortTemperatures(inputName: String, outputName: String) {
  * 2
  */
 fun sortSequence(inputName: String, outputName: String) {
-    TODO()
+    //Трудоемкость = O(N)
+    //Ресурсоемкость = O(N)
+    val numbers = File(inputName).readLines().map { it.toInt() }
+    val countMap = mutableMapOf<Int, Int>()
+    var maxCount = 0
+    var numberWithMaxCount = 0
+    for ((key, value) in numbers.withIndex()) {
+        countMap[value] = countMap.getOrDefault(value, 0) + 1
+        if (countMap[value]!! > maxCount) {
+            maxCount = countMap[value]!!
+            numberWithMaxCount = value
+        }
+        if (countMap[value]!! == maxCount && value < numberWithMaxCount) {
+            numberWithMaxCount = value
+        }
+    }
+    File(outputName).bufferedWriter().use {
+        for (number in numbers) {
+            if (number != numberWithMaxCount) it.write("$number\n")
+        }
+        for (i in 1..maxCount) it.write("$numberWithMaxCount\n")
+    }
 }
 
 /**
