@@ -109,5 +109,25 @@ fun longestCommonSubstring(first: String, second: String): String {
  * Единица простым числом не считается.
  */
 fun calcPrimesNumber(limit: Int): Int {
-    TODO()
+    //Трудоемкость = O(N log log N)
+    //Ресурсоемкость = O(N)
+    if (limit <= 1) return 0
+    var count = 0
+    val numbers = mutableListOf(false, false)
+    for (i in 2..limit) numbers.add(i, true)
+    var i = 2
+    while (i * i <= limit) {
+        var l = i * i
+        if (numbers[i]) {
+            count++
+            while (l <= limit) {
+                numbers[l] = false
+                l += i
+            }
+        }
+        i++
+    }
+    for (k in i..limit)
+        if (numbers[k]) count++
+    return count
 }
