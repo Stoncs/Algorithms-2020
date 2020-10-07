@@ -156,11 +156,12 @@ fun sortSequence(inputName: String, outputName: String) {
     var numberWithMaxCount = 0
     for ((key, value) in numbers.withIndex()) {
         countMap[value] = countMap.getOrDefault(value, 0) + 1
-        if (countMap[value]!! > maxCount) {
-            maxCount = countMap[value]!!
+        val count = countMap[value]!!
+        if (count > maxCount) {
+            maxCount = count
             numberWithMaxCount = value
         }
-        if (countMap[value]!! == maxCount && value < numberWithMaxCount) {
+        if (count == maxCount && value < numberWithMaxCount) {
             numberWithMaxCount = value
         }
     }
@@ -187,7 +188,6 @@ fun sortSequence(inputName: String, outputName: String) {
  * Результат: second = [1 3 4 9 9 13 15 20 23 28]
  */
 fun <T : Comparable<T>> mergeArrays(first: Array<T>, second: Array<T?>) {
-    for (i in first.indices) second[i] = first[i]
-    second.sort()
+    TODO()
 }
 
