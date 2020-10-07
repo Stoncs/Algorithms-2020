@@ -95,8 +95,47 @@ fun josephTask(menNumber: Int, choiceInterval: Int): Int {
  * вернуть ту из них, которая встречается раньше в строке first.
  */
 fun longestCommonSubstring(first: String, second: String): String {
-    TODO()
+    //Трудоемкость = O(NM)
+    //Ресурсоемкость = O(NM)
+    //где N - длина первой строки, M - длина второй строки
+    val array = Array(first.length) { Array(second.length) { 0 } }
+    var result = ""
+    var maxLength = 1
+    for (letter1 in first.indices) {
+        for (letter2 in second.indices) {
+            if (array[letter1][letter2] != 0) continue
+            if (first[letter1] == second[letter2]) {
+                array[letter1][letter2] = 1
+                var count = 1
+                var inc = 1
+                while (true) {
+                    if (letter1 + inc > first.length - 1 || letter2 + inc > second.length - 1) break
+                    if (first[letter1 + inc] == second[letter2 + inc]) {
+                        count++
+                        array[letter1 + inc][letter2 + inc] = count
+                        if (count > maxLength) maxLength = count
+                    } else
+                        break
+                    inc++
+                }
+            }
+        }
+    }
+    for (i in first.indices){
+        for (j in second.indices) {
+            if (array[i][j] == maxLength) {
+                var k = maxLength - 1
+                while (k >= 0) {
+                    result += first[i - k]
+                    k--
+                }
+                return result
+            }
+        }
+    }
+    return result
 }
+
 
 /**
  * Число простых чисел в интервале
