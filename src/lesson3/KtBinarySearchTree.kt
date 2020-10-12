@@ -1,13 +1,15 @@
 package lesson3
 
 import java.util.*
+import kotlin.NoSuchElementException
 import kotlin.math.max
 
 // attention: Comparable is supported but Comparator is not
 class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSortedSet<T> {
 
     private class Node<T>(
-        val value: T
+        val value: T,
+        val parent: Node<T>?
     ) {
         var left: Node<T>? = null
         var right: Node<T>? = null
@@ -51,9 +53,9 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         if (comparison == 0) {
             return false
         }
-        val newNode = Node(element)
+        val newNode = Node(element, closest)
         when {
-            closest == null -> root = newNode
+            closest == null -> root = Node(element, null)
             comparison < 0 -> {
                 assert(closest.left == null)
                 closest.left = newNode
@@ -90,6 +92,24 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         BinarySearchTreeIterator()
 
     inner class BinarySearchTreeIterator internal constructor() : MutableIterator<T> {
+        private var currentNode = root
+        private val stack = Stack<Node<T>>()
+
+        init {
+            while (currentNode?.right != null) {
+                currentNode = currentNode!!.right
+            }
+            stack.push(currentNode)
+            for (i in 2..size) {
+                if (currentNode?.left != null) {
+                    currentNode = currentNode!!.left
+                    while (currentNode?.right != null) currentNode = currentNode?.right
+                } else {
+                    currentNode = currentNode?.parent
+                }
+                stack.push(currentNode)
+            }
+        }
 
         /**
          * Проверка наличия следующего элемента
@@ -102,8 +122,23 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          * Средняя
          */
         override fun hasNext(): Boolean {
-            // TODO
-            throw NotImplementedError()
+            var node = currentNode
+            var lastNode: Node<T>? = null
+            if (node == null) return false
+            if (node.parent == null) return false
+            while (node?.parent != null) {
+                lastNode = node!!
+                node = node.parent
+            }
+            if (lastNode == node!!.left) return true
+            if (currentNode?.right != null) return true
+            node = currentNode
+            while (node?.parent != null) {
+                lastNode = node
+                node = node.parent
+                if (node?.right != lastNode) return true
+            }
+            return false
         }
 
         /**
@@ -119,9 +154,44 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          *
          * Средняя
          */
+        private var end = false
+        private var count = 1
         override fun next(): T {
-            // TODO
-            throw NotImplementedError()
+            var node: Node<T>?
+            var lastNode: Node<T>?
+            if (end) throw NoSuchElementException()
+            if (count == 1 && currentNode != null) {
+                count++
+                return currentNode!!.value
+            }
+            if (currentNode?.right == null) {
+                lastNode = currentNode!!
+                node = currentNode!!.parent
+                if (node?.left == lastNode) {
+                    currentNode = node
+                    return node.value
+                }
+                while (node?.right == lastNode && node?.parent != null) {
+                    lastNode = node
+                    node = node.parent
+                }
+                if (node?.parent == null) {
+                    end = true
+                    throw NoSuchElementException()
+                }
+                currentNode = node
+                return node.value
+            }
+
+            if (currentNode!!.right != null) {
+                node = currentNode!!.right
+                while (node?.left != null) {
+                    node = node.left
+                }
+                currentNode = node
+                return node!!.value
+            }
+            throw NoSuchElementException()
         }
 
         /**
