@@ -96,6 +96,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         private val stack = Stack<Node<T>>()
 
         init {
+            var lastNode: Node<T>?
             while (currentNode?.right != null) {
                 currentNode = currentNode!!.right
             }
@@ -105,7 +106,12 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
                     currentNode = currentNode!!.left
                     while (currentNode?.right != null) currentNode = currentNode?.right
                 } else {
+                    lastNode = currentNode
                     currentNode = currentNode?.parent
+                    while (currentNode?.left == lastNode) {
+                        lastNode = currentNode
+                        currentNode = currentNode?.parent
+                    }
                 }
                 stack.push(currentNode)
             }
@@ -122,23 +128,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          * Средняя
          */
         override fun hasNext(): Boolean {
-            var node = currentNode
-            var lastNode: Node<T>? = null
-            if (node == null) return false
-            if (node.parent == null) return false
-            while (node?.parent != null) {
-                lastNode = node!!
-                node = node.parent
-            }
-            if (lastNode == node!!.left) return true
-            if (currentNode?.right != null) return true
-            node = currentNode
-            while (node?.parent != null) {
-                lastNode = node
-                node = node.parent
-                if (node?.right != lastNode) return true
-            }
-            return false
+            return stack.isEmpty()
         }
 
         /**
@@ -154,44 +144,10 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          *
          * Средняя
          */
-        private var end = false
-        private var count = 1
         override fun next(): T {
-            var node: Node<T>?
-            var lastNode: Node<T>?
-            if (end) throw NoSuchElementException()
-            if (count == 1 && currentNode != null) {
-                count++
-                return currentNode!!.value
-            }
-            if (currentNode?.right == null) {
-                lastNode = currentNode!!
-                node = currentNode!!.parent
-                if (node?.left == lastNode) {
-                    currentNode = node
-                    return node.value
-                }
-                while (node?.right == lastNode && node?.parent != null) {
-                    lastNode = node
-                    node = node.parent
-                }
-                if (node?.parent == null) {
-                    end = true
-                    throw NoSuchElementException()
-                }
-                currentNode = node
-                return node.value
-            }
-
-            if (currentNode!!.right != null) {
-                node = currentNode!!.right
-                while (node?.left != null) {
-                    node = node.left
-                }
-                currentNode = node
-                return node!!.value
-            }
-            throw NoSuchElementException()
+            if (stack.isEmpty()) throw NoSuchElementException()
+            currentNode = stack.pop()
+            return currentNode!!.value
         }
 
         /**
