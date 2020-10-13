@@ -82,6 +82,8 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      * Средняя
      */
     override fun remove(element: T): Boolean {
+        //время: O(H)
+        //H - высота дерева
         var replacementNode: Node<T>?
         val currentNode = find(element)
         val comparison = if (currentNode == null) -1 else element.compareTo(currentNode.value)
@@ -97,8 +99,9 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
                 while (replacementNode?.left != null) {
                     replacementNode = replacementNode?.left
                 }
-                remove(replacementNode?.value)
-                currentNode.value = replacementNode!!.value
+                val replacementValue = replacementNode!!.value
+                remove(replacementNode.value)
+                currentNode.value = replacementValue
                 return true
             }
             if (currentNode?.left != null) {
@@ -106,8 +109,9 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
                 while (replacementNode?.right != null) {
                     replacementNode = replacementNode.right
                 }
-                remove(replacementNode?.value)
-                currentNode.value = replacementNode!!.value
+                val replacementValue = replacementNode!!.value
+                remove(replacementNode.value)
+                currentNode.value = replacementValue
                 return true
             }
             if (currentNode?.parent?.left == currentNode) currentNode?.parent?.left = null
@@ -133,7 +137,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             while (currentNode?.right != null) {
                 currentNode = currentNode!!.right
             }
-            stack.push(currentNode)
+            if (currentNode != null) stack.push(currentNode)
             for (i in 2..size) {
                 if (currentNode?.left != null) {
                     currentNode = currentNode!!.left
@@ -148,6 +152,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
                 }
                 stack.push(currentNode)
             }
+            currentNode = null
         }
 
         /**
@@ -161,7 +166,8 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          * Средняя
          */
         override fun hasNext(): Boolean {
-            return stack.isEmpty()
+            //время: O(1)
+            return stack.isNotEmpty()
         }
 
         /**
@@ -178,6 +184,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          * Средняя
          */
         override fun next(): T {
+            //время: O(logN)
             if (stack.isEmpty()) throw NoSuchElementException()
             currentNode = stack.pop()
             return currentNode!!.value
@@ -196,8 +203,10 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          * Сложная
          */
         override fun remove() {
-            // TODO
-            throw NotImplementedError()
+            //время: O(N)
+            check(currentNode != null)
+            remove(currentNode!!.value)
+            currentNode = null
         }
 
     }
