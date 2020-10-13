@@ -83,29 +83,35 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      */
     override fun remove(element: T): Boolean {
         var replacementNode: Node<T>?
-        val node = find(element)
-        val comparison = if (node == null) -1 else element.compareTo(node.value)
+        val currentNode = find(element)
+        val comparison = if (currentNode == null) -1 else element.compareTo(currentNode.value)
         if (comparison == 0) {
-            if (node?.right != null) {
-                replacementNode = node.right
+            if (currentNode?.right != null) {
+                replacementNode = currentNode.right
+                if (replacementNode?.left == null) {
+                    currentNode.value = replacementNode!!.value
+                    currentNode.right = replacementNode.right
+                    size--
+                    return true
+                }
                 while (replacementNode?.left != null) {
-                    replacementNode = replacementNode.left
+                    replacementNode = replacementNode?.left
                 }
                 remove(replacementNode?.value)
-                node.value = replacementNode!!.value
+                currentNode.value = replacementNode!!.value
                 return true
             }
-            if (node?.left != null) {
-                replacementNode = node.left
+            if (currentNode?.left != null) {
+                replacementNode = currentNode.left
                 while (replacementNode?.right != null) {
                     replacementNode = replacementNode.right
                 }
                 remove(replacementNode?.value)
-                node.value = replacementNode!!.value
+                currentNode.value = replacementNode!!.value
                 return true
             }
-            if (node?.parent?.left == node) node?.parent?.left = null
-            else node?.parent?.right = null
+            if (currentNode?.parent?.left == currentNode) currentNode?.parent?.left = null
+            else currentNode?.parent?.right = null
             size--
             return true
         }
