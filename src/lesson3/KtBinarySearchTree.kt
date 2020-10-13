@@ -8,7 +8,7 @@ import kotlin.math.max
 class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSortedSet<T> {
 
     private class Node<T>(
-        val value: T,
+        var value: T,
         val parent: Node<T>?
     ) {
         var left: Node<T>? = null
@@ -82,7 +82,34 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      * Средняя
      */
     override fun remove(element: T): Boolean {
-        TODO()
+        var replacementNode: Node<T>?
+        val node = find(element)
+        val comparison = if (node == null) -1 else element.compareTo(node.value)
+        if (comparison == 0) {
+            if (node?.right != null) {
+                replacementNode = node.right
+                while (replacementNode?.left != null) {
+                    replacementNode = replacementNode.left
+                }
+                remove(replacementNode?.value)
+                node.value = replacementNode!!.value
+                return true
+            }
+            if (node?.left != null) {
+                replacementNode = node.left
+                while (replacementNode?.right != null) {
+                    replacementNode = replacementNode.right
+                }
+                remove(replacementNode?.value)
+                node.value = replacementNode!!.value
+                return true
+            }
+            if (node?.parent?.left == node) node?.parent?.left = null
+            else node?.parent?.right = null
+            size--
+            return true
+        }
+        return false
     }
 
     override fun comparator(): Comparator<in T>? =
