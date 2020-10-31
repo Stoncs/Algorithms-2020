@@ -129,30 +129,18 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         BinarySearchTreeIterator()
 
     inner class BinarySearchTreeIterator internal constructor() : MutableIterator<T> {
-        private var currentNode = root
+        private var currentNode: Node<T>? = null
         private val stack = Stack<Node<T>>()
 
         init {
-            var lastNode: Node<T>?
-            while (currentNode?.right != null) {
-                currentNode = currentNode!!.right
+            addLeftBranch(root)
+        }
+
+        private fun addLeftBranch(node: Node<T>?) {
+            if (node != null) {
+                stack.push(node)
+                addLeftBranch(node.left)
             }
-            if (currentNode != null) stack.push(currentNode)
-            for (i in 2..size) {
-                if (currentNode?.left != null) {
-                    currentNode = currentNode!!.left
-                    while (currentNode?.right != null) currentNode = currentNode?.right
-                } else {
-                    lastNode = currentNode
-                    currentNode = currentNode?.parent
-                    while (currentNode?.left == lastNode) {
-                        lastNode = currentNode
-                        currentNode = currentNode?.parent
-                    }
-                }
-                stack.push(currentNode)
-            }
-            currentNode = null
         }
 
         /**
@@ -187,6 +175,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             //время: O(logN)
             if (stack.isEmpty()) throw NoSuchElementException()
             currentNode = stack.pop()
+            addLeftBranch(currentNode?.right)
             return currentNode!!.value
         }
 
@@ -204,8 +193,40 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          */
         override fun remove() {
             //время: O(N)
+            fun removeOrChange(currentNode: Node<T>): Boolean {
+                var replacementNode: Node<T>?
+                if (currentNode.right != null) {
+                    replacementNode = currentNode.right
+                    if (replacementNode?.left == null) {
+                        currentNode.value = replacementNode!!.value
+                        currentNode.right = replacementNode.right
+                        size--
+                        return true
+                    }
+                    while (replacementNode?.left != null) {
+                        replacementNode = replacementNode?.left
+                    }
+                    val replacementValue = replacementNode!!.value
+                    remove(replacementNode.value)
+                    currentNode.value = replacementValue
+                }
+                if (currentNode.left != null) {
+                    replacementNode = currentNode.left
+                    while (replacementNode?.right != null) {
+                        replacementNode = replacementNode.right
+                    }
+                    val replacementValue = replacementNode!!.value
+                    remove(replacementNode.value)
+                    currentNode.value = replacementValue
+                    return true
+                }
+                if (currentNode.parent?.left == this.currentNode) currentNode.parent?.left = null
+                else currentNode.parent?.right = null
+                size--
+                return false
+            }
             check(currentNode != null)
-            remove(currentNode!!.value)
+            removeOrChange(currentNode!!)
             currentNode = null
         }
 
