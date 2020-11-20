@@ -155,8 +155,8 @@ fun sortSequence(inputName: String, outputName: String) {
     var maxCount = 0
     var numberWithMaxCount = 0
     for ((key, value) in numbers.withIndex()) {
-        countMap[value] = countMap.getOrDefault(value, 0) + 1
-        val count = countMap[value]!!
+        val count = countMap.getOrDefault(value, 0) + 1
+        countMap[value] = count
         if (count > maxCount) {
             maxCount = count
             numberWithMaxCount = value
