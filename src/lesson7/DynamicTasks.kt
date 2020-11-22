@@ -53,7 +53,37 @@ fun longestCommonSubSequence(first: String, second: String): String {
  * В примере ответами являются 2, 8, 9, 12 или 2, 5, 9, 12 -- выбираем первую из них.
  */
 fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
-    TODO()
+    val counts = MutableList(list.size) { 1 }
+    var max = 1
+    if (list.size == 1) return list
+    for (j in list.indices) {
+        var i = 0
+        while (i < j) {
+            if (list[j] > list[i] && counts[j] <= counts[i]) {
+                counts[j] = counts[i] + 1
+                if (counts[j] > max) max = counts[j]
+            }
+            i++
+        }
+    }
+    val resultIndices = MutableList(max) { 0 }
+    var minIndex = list.size
+    for (i in counts.indices.reversed()) {
+        if (i == max) {
+            var index = max
+            for (j in i downTo 0) {
+                if (counts[j] == index && list[j] > resultIndices[index]) {
+                    resultIndices.add(index, list[j])
+                    minIndex = j
+                }
+                if (counts[j] == index - 1) {
+                    resultIndices.add(index - 1, list[j])
+                    minIndex = j
+                    index--
+                }
+            }
+        }
+    }
 }
 
 /**
