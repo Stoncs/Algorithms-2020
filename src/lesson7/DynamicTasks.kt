@@ -2,6 +2,8 @@
 
 package lesson7
 
+import kotlin.collections.mutableListOf as mu
+
 /**
  * Наибольшая общая подпоследовательность.
  * Средняя
@@ -53,37 +55,34 @@ fun longestCommonSubSequence(first: String, second: String): String {
  * В примере ответами являются 2, 8, 9, 12 или 2, 5, 9, 12 -- выбираем первую из них.
  */
 fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
-    val counts = MutableList(list.size) { 1 }
-    var max = 1
-    if (list.size == 1) return list
+    val counts = MutableList(list.size) { 0 }
+    val previous = MutableList(list.size) { 0 }
+    var maxIndex = 0
+    var max = 0
+    if (list.size <= 1) return list
     for (j in list.indices) {
+        counts[j] = 0
+        previous[j] = -1
         var i = 0
         while (i < j) {
-            if (list[j] > list[i] && counts[j] <= counts[i]) {
+            if (list[i] < list[j] && counts[i] + 1 > counts[j]) {
                 counts[j] = counts[i] + 1
-                if (counts[j] > max) max = counts[j]
+                previous[j] = i
+                if (counts[j] > max) {
+                    max = counts[j]
+                    maxIndex = j
+                }
             }
             i++
         }
     }
-    val resultIndices = MutableList(max) { 0 }
-    var minIndex = list.size
-    for (i in counts.indices.reversed()) {
-        if (i == max) {
-            var index = max
-            for (j in i downTo 0) {
-                if (counts[j] == index && list[j] > resultIndices[index]) {
-                    resultIndices.add(index, list[j])
-                    minIndex = j
-                }
-                if (counts[j] == index - 1) {
-                    resultIndices.add(index - 1, list[j])
-                    minIndex = j
-                    index--
-                }
-            }
-        }
+    val result = mu<Int>()
+    var position = maxIndex
+    while (position != -1) {
+        result.add(list[position])
+        position = previous[position]
     }
+    return result.reversed()
 }
 
 /**
