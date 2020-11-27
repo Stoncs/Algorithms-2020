@@ -74,8 +74,38 @@ abstract class AbstractOpenAddressingSetTest {
                     expectedSize, openAddressingSet.size,
                     "The size of the set is not as expected."
                 )
-                println("success")
             }
+        }
+        //added test
+        val openAddressingSet = create<Int>(2)
+        for (i in 1..4) {
+            openAddressingSet += i
+        }
+        val element = 2
+        val expectedSize = openAddressingSet.size - 1
+        assertTrue(
+            openAddressingSet.remove(element),
+            "An element wasn't removed contrary to expected."
+        )
+        assertFalse(
+            element in openAddressingSet,
+            "A supposedly removed element is still in the set."
+        )
+        assertEquals(
+            expectedSize, openAddressingSet.size,
+            "The size of the set is not as expected."
+        )
+        assertFalse(
+            openAddressingSet.remove(element),
+            "A removed element was supposedly removed twice."
+        )
+        assertEquals(
+            expectedSize, openAddressingSet.size,
+            "The size of the set is not as expected."
+        )
+        openAddressingSet += 5
+        assertFailsWith<IllegalStateException>("A table overflow is not being prevented.") {
+            openAddressingSet += 6
         }
     }
 

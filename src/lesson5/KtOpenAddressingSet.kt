@@ -8,6 +8,8 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
         require(bits in 2..31)
     }
 
+    private val deleted = object {}
+
     private val capacity = 1 shl bits
 
     private val storage = Array<Any?>(capacity) { null }
@@ -27,12 +29,14 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
     override fun contains(element: T): Boolean {
         var index = element.startingIndex()
         var current = storage[index]
-        while (current != null) {
+        var count = 0
+        while (current != null && count < capacity) {
             if (current == element) {
                 return true
             }
             index = (index + 1) % capacity
             current = storage[index]
+            count++
         }
         return false
     }
@@ -51,7 +55,7 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
         val startingIndex = element.startingIndex()
         var index = startingIndex
         var current = storage[index]
-        while (current != null) {
+        while (current != null && current != deleted) {
             if (current == element) {
                 return false
             }
@@ -75,7 +79,8 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
      *
      * Средняя
      */
-    val deleted = "D"
+    //память - O(1)
+    //время - O(N)
     override fun remove(element: T): Boolean {
         val startingIndex = element.startingIndex()
         var index = startingIndex
@@ -113,12 +118,12 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
         private var count = 0
         private val originalSize = size
 
-        // O(1)
+        //память - O(1)
         override fun hasNext(): Boolean {
             return count < originalSize
         }
 
-        // O(1)
+        //память - O(1)
         override fun next(): T {
             if (!hasNext()) throw IllegalStateException()
             removeObject = null
@@ -130,7 +135,7 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
             return removeObject as T
         }
 
-        // O(1)
+        //память - O(1)
         override fun remove() {
             if (removeObject == null) throw IllegalStateException()
             storage[index - 1] = deleted
